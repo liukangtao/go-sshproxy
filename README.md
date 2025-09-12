@@ -80,12 +80,12 @@ go build
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
 | --sshUser | root | SSH 用户名 |
-| --sshHost | 23.95.214.100 | SSH 主机地址 |
+| --sshHost | xx.xx.xx.xx | SSH 主机地址 |
 | --port | 22 | SSH 端口 |
 | --socks5 | 6111 | SOCKS5 代理监听端口 |
 | --http | 8880 | HTTP 代理监听端口 |
 | --log | false | 是否将日志写入文件 |
-| --sshPasswd | Thisismyhost | SSH 密码 |
+| --sshPasswd | ******** | SSH 密码 |
 | --foreground | false | 是否在前台运行 |
 
 ### 使用示例
