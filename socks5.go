@@ -3,11 +3,11 @@
 package main
 
 import (
-	"errors"  // 用于处理错误
-	"fmt"     // 用于格式化输入输出
-	"io"      // 用于基本的I/O操作
-	"log"     // 用于记录日志
-	"net"     // 用于网络I/O操作
+	"errors" // 用于处理错误
+	"fmt"    // 用于格式化输入输出
+	"io"     // 用于基本的I/O操作
+	"log"    // 用于记录日志
+	"net"    // 用于网络I/O操作
 )
 
 // handleConnection 处理SOCKS5连接
@@ -40,6 +40,7 @@ func handleConnection(conn net.Conn, sshPool *SSHConnectionPool) {
 		_ = sendSocks5Response(conn, 0x01)
 		return
 	}
+	defer result.conn.Close()
 
 	// 发送SOCKS5连接成功响应
 	// 通知客户端连接已建立
@@ -55,7 +56,6 @@ func handleConnection(conn net.Conn, sshPool *SSHConnectionPool) {
 	// 数据双向转发
 	// 启动goroutine处理从客户端到目标的数据转发
 	go func() {
-		defer result.conn.Close()
 		io.Copy(result.conn, conn) // 从客户端到目标
 	}()
 	// 处理从目标到客户端的数据转发

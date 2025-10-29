@@ -3,8 +3,8 @@
 package main
 
 import (
-	"sync"    // 用于同步原语，如互斥锁
-	"time"    // 用于时间处理
+	"sync" // 用于同步原语，如互斥锁
+	"time" // 用于时间处理
 
 	"golang.org/x/crypto/ssh" // 用于SSH客户端连接
 )
@@ -12,15 +12,16 @@ import (
 // SSHConnectionPool SSH连接池结构
 // 用于管理SSH连接的复用，包含连接通道、配置信息和状态管理
 type SSHConnectionPool struct {
-	connections   chan *ssh.Client             // 连接通道，用于存储可用的SSH连接
-	config        *ssh.ClientConfig            // SSH客户端配置
-	host          string                       // SSH主机地址
-	port          string                       // SSH端口
-	maxSize       int                          // 连接池最大大小
-	mu            sync.Mutex                   // 互斥锁，保护连接池状态
-	lastUsed      map[*ssh.Client]time.Time    // 记录连接最后使用时间
+	connections chan *ssh.Client  // 连接通道，用于存储可用的SSH连接
+	config      *ssh.ClientConfig // SSH客户端配置
+	host        string            // SSH主机地址
+	port        string            // SSH端口
+	maxSize     int
+	// 连接池最大大小
+	mu            sync.Mutex                        // 互斥锁，保护连接池状态
+	lastUsed      map[*ssh.Client]time.Time         // 记录连接最后使用时间
 	healthStatus  map[*ssh.Client]*ConnectionHealth // 记录连接健康状态
-	lastUsedMutex sync.RWMutex                 // 保护lastUsed的读写锁
+	lastUsedMutex sync.RWMutex                      // 保护lastUsed的读写锁
 }
 
 // NewSSHConnectionPool 创建新的SSH连接池
@@ -28,19 +29,19 @@ type SSHConnectionPool struct {
 func NewSSHConnectionPool(config *ssh.ClientConfig, host, port string, maxSize int) *SSHConnectionPool {
 	// 创建连接池实例
 	pool := &SSHConnectionPool{
-		connections:  make(chan *ssh.Client, maxSize), // 创建指定大小的连接通道
-		config:       config,                          // SSH配置
-		host:         host,                            // SSH主机
-		port:         port,                            // SSH端口
-		maxSize:      maxSize,                         // 最大连接数
-		lastUsed:     make(map[*ssh.Client]time.Time), // 初始化最后使用时间映射
+		connections:  make(chan *ssh.Client, maxSize),         // 创建指定大小的连接通道
+		config:       config,                                  // SSH配置
+		host:         host,                                    // SSH主机
+		port:         port,                                    // SSH端口
+		maxSize:      maxSize,                                 // 最大连接数
+		lastUsed:     make(map[*ssh.Client]time.Time),         // 初始化最后使用时间映射
 		healthStatus: make(map[*ssh.Client]*ConnectionHealth), // 初始化健康状态映射
 	}
 
 	// 启动定期清理空闲连接的goroutine
 	// 定期检查并关闭长时间未使用的连接
 	go pool.cleanupIdleConnections()
-	
+
 	// 启动定期健康检查的goroutine
 	// 定期检查连接池中连接的健康状态
 	go pool.startHealthChecks()
@@ -65,7 +66,7 @@ func (p *SSHConnectionPool) Get() (*ssh.Client, error) {
 			p.lastUsedMutex.Lock()
 			health, exists := p.healthStatus[conn]
 			p.lastUsedMutex.Unlock()
-			
+
 			// 如果存在健康状态记录且最近1分钟内检查过且健康，则直接返回
 			if exists && time.Since(health.lastChecked) < 1*time.Minute && health.healthy {
 				return conn, nil
@@ -83,7 +84,7 @@ func (p *SSHConnectionPool) Get() (*ssh.Client, error) {
 				p.lastUsedMutex.Unlock()
 				return conn, nil
 			}
-			
+
 			// 连接无效，关闭它并更新健康状态
 			p.lastUsedMutex.Lock()
 			delete(p.lastUsed, conn)
@@ -258,7 +259,7 @@ func (p *SSHConnectionPool) checkAllConnectionsHealth() {
 	for _, conn := range connections {
 		// 发送keepalive消息检查连接是否仍然有效
 		_, _, err := conn.SendRequest("keepalive@openssh.com", true, nil)
-		
+
 		// 更新健康状态
 		p.lastUsedMutex.Lock()
 		if p.healthStatus[conn] == nil {

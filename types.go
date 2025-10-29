@@ -3,9 +3,9 @@
 package main
 
 import (
-	"net"      // 用于网络I/O操作
-	"sync"     // 用于同步原语，如互斥锁
-	"time"     // 用于时间处理
+	"net"  // 用于网络I/O操作
+	"sync" // 用于同步原语，如互斥锁
+	"time" // 用于时间处理
 )
 
 // Method 定义路由方式的枚举类型
@@ -59,7 +59,7 @@ type ConnectionHealth struct {
 var (
 	// routeCache 路由缓存：目标地址->最佳路由方式
 	// 用于缓存目标地址的最佳路由方式，避免重复的路由测试
-	routeCache = make(map[string]*targetInfo)
+	routeCache = make(map[string]targetInfo)
 	// cacheMutex 缓存读写锁，保证并发安全
 	// 用于保护routeCache的并发访问，防止数据竞争
 	cacheMutex sync.RWMutex

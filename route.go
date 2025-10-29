@@ -3,13 +3,13 @@
 package main
 
 import (
-	"context"  // 用于控制goroutine的上下文
-	"fmt"      // 用于格式化输入输出
-	"log"      // 用于记录日志
-	"net"      // 用于网络I/O操作
-	"os"       // 用于访问操作系统功能
-	"sort"     // 用于排序
-	"time"     // 用于时间处理
+	"context" // 用于控制goroutine的上下文
+	"fmt"     // 用于格式化输入输出
+	"log"     // 用于记录日志
+	"net"     // 用于网络I/O操作
+	"os"      // 用于访问操作系统功能
+	"sort"    // 用于排序
+	"time"    // 用于时间处理
 )
 
 // selectRoute 选择到目标地址的最佳路由
@@ -20,7 +20,7 @@ func selectRoute(targetAddr string, sshPool *SSHConnectionPool) (result routeRes
 	defer cancel()
 
 	// 创建结果通道，用于接收路由测试结果
-	resultChan := make(chan routeResult, 2)
+	resultChan := make(chan routeResult)
 
 	// 记录开始时间，用于计算连接延迟
 	start := time.Now()
@@ -44,12 +44,12 @@ func selectRoute(targetAddr string, sshPool *SSHConnectionPool) (result routeRes
 					log.Printf("从连接池获取SSH连接失败: %v", err)
 					needUpdate = true
 				} else {
+					defer sshPool.Put(sshClient)
 					// 通过SSH隧道连接目标地址
 					var sshConn net.Conn
 					sshConn, err = sshClient.Dial("tcp", targetAddr)
 					if err != nil {
-						// 归还连接到连接池
-						sshPool.Put(sshClient)
+						// 归还连接到连接
 						log.Printf("SSH隧道连接失败: %v", err)
 						needUpdate = true
 					} else {
@@ -106,6 +106,7 @@ func selectRoute(targetAddr string, sshPool *SSHConnectionPool) (result routeRes
 			if err != nil {
 				return
 			}
+
 			// 将结果发送到结果通道
 			select {
 			case resultChan <- routeResult{conn: remoteConn, method: SSH, latency: time.Since(start)}:
@@ -147,7 +148,7 @@ func selectRoute(targetAddr string, sshPool *SSHConnectionPool) (result routeRes
 		if result.conn != nil {
 			// 使用写锁保护并发访问
 			cacheMutex.Lock()
-			routeCache[targetAddr] = &targetInfo{
+			routeCache[targetAddr] = targetInfo{
 				method: result.method,
 				time:   time.Now().Unix(),
 			}
