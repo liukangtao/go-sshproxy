@@ -8,6 +8,7 @@ route.log
 route.log.old
 
 # 构建与测试产物
+/dist/
 /proxy
 /proxy.exe
 /proxy.test.exe
