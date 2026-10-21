@@ -1,0 +1,29 @@
+# 本地凭据与运行产物：请勿提交
+proxy.conf.json
+proxy.hostkey
+proxy.pid
+proxy.log
+proxy.log.old
+route.log
+route.log.old
+
+# 构建与测试产物
+/proxy
+/proxy.exe
+/proxy.test.exe
+*.test
+*.out
+*.pb.gz
+
+# 性能分析 / 临时产物
+profile_*.txt
+profile_*.pb.gz
+
+# IDE / 个人配置
+.idea/
+.vscode/
+Default.pbprofile
+.DS_Store
+
+# 助手工作目录（含本地笔记与测试产物）
+.workbuddy/

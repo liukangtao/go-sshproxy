@@ -1,0 +1,11 @@
+{
+  "sshHost": "203.0.113.10",
+  "sshUser": "your-ssh-user",
+  "sshPasswd": "your-ssh-password",
+  "sshPort": 22,
+  "listen": "127.0.0.1",
+  "socks5": 6111,
+  "http": 8880,
+  "log": false,
+  "foreground": false
+}
